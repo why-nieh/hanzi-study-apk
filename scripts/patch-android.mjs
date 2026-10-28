@@ -35,20 +35,25 @@ if (!/-Xmx4096m/.test(gp)) {
 const bgPath = join(appDir, "build.gradle");
 let bg = readFileSync(bgPath, "utf8");
 if (!bg.includes("[patch-android]")) {
-  // aaptOptions / androidResources 放进 android{} 块
-  // AGP 8.x: aaptOptions 已移除，用 androidResources
-  const inject = `
-        // [patch-android] 媒体资源不压缩，保证音频可随机 seek（AGP 8: androidResources）
-        androidResources {
-            noCompress 'mp3', 'webp', 'ico'
-        }
-        lint {
-            abortOnError false
-            checkReleaseBuilds false
-        }`;
-  const idx = bg.lastIndexOf("}");
-  if (idx === -1) { console.error("[patch] build.gradle 结构异常"); process.exit(1); }
-  bg = bg.slice(0, idx) + inject + "\n" + bg.slice(idx);
+  // noCompress：直接追加进模板自带的 defaultConfig > aaptOptions 块
+  const before = bg;
+  bg = bg.replace(
+    /(aaptOptions\s*\{[^}]*ignoreAssetsPattern[^}]*?)(\n(\s*)\})/,
+    `$1\n$3// [patch-android] 媒体资源不压缩，保证音频可随机 seek\n$3noCompress 'mp3', 'webp', 'ico'\n$2`
+  );
+  // lint 放行：插进 android{} 块内（buildTypes 之前，缩进与块内一致）
+  const lintInject = `    // [patch-android] lint 不阻断构建
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
+`;
+  bg = bg.replace(/(    buildTypes \{)/, `${lintInject}$1`);
+  if (bg === before) {
+    console.error("[patch] build.gradle 结构与预期不符，未做修改 —— 请人工检查");
+    process.exit(1);
+  }
   writeFileSync(bgPath, bg);
   console.log("[build.gradle] noCompress + lint 放行");
 }
