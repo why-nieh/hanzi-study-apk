@@ -29,6 +29,14 @@
 2. Actions → Build offline APK → Run workflow（push 到 main 也会自动触发）
 3. 约 5 分钟，Releases 页面出现 `nezha-hanzi-v1.0.N.apk`，手机直接下载安装
 
+## 已构建产物
+
+- **v1.0.3**：`nezha-hanzi-v1.0.3.apk`，26.77 MB
+- 下载页：`https://github.com/why-nieh/hanzi-study-apk/releases/latest`
+- 国内直连加速：`https://gh-proxy.com/https://github.com/why-nieh/hanzi-study-apk/releases/download/v1.0.3/nezha-hanzi-v1.0.3.apk`
+- 包内已核验（Range 解析中央目录）：676 条目，学汉字/数学/古诗全部素材在 `assets/public/`，130 个 mp3 全部未压缩存储（音频可随机 seek），全部断网可用
+- 首次构建踩坑记录：AGP 8 下 `aaptOptions`/`androidResources` 顶层块不可用，noCompress 必须追加进模板自带的 `defaultConfig > aaptOptions`；补丁注入不能按 `lastIndexOf("}")` 定位（会落进文件末尾 try/catch）
+
 ## 家长须知
 
 - **进度强制顺序解锁**：每个字做完「画一画吧」（点对 10 次）才解锁下一个，每 6 个字一次听音辨字测验。孩子卡住了：**连点标题「哪吒学汉字」10 次**，输入关卡号即可跳关。
