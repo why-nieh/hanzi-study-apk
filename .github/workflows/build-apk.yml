@@ -1,0 +1,70 @@
+name: Build offline APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - ".gitignore"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Capacitor
+        run: npm install --no-audit --no-fund
+
+      - name: Apply web patches
+        run: node scripts/patch-web.mjs
+
+      - name: Capacitor add android
+        run: npx cap add android
+
+      - name: Capacitor sync
+        run: npx cap sync android
+
+      - name: Patch android project
+        run: node scripts/patch-android.mjs android
+
+      - name: Build debug APK
+        run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+
+      - name: Collect APK
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/debug/*.apk "out/nezha-hanzi-v1.0.${{ github.run_number }}.apk"
+          ls -lh out
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: 哪吒学汉字 v1.0.${{ github.run_number }}
+          body: |
+            完全离线的安卓安装包。
+
+            - 学汉字（1303 字，含拼音 / 笔画动画 / 听音辨字 / 贴纸画）
+            - 数学（默认十法：10 以内加减）
+            - 古诗词 114 首（配乐朗读）
+
+            注意：卸载应用会清空学习进度。
+          files: out/*.apk

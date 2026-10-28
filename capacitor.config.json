@@ -1,0 +1,11 @@
+{
+  "appId": "tech.nieh.hanzistudy",
+  "appName": "哪吒学汉字",
+  "webDir": "web",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

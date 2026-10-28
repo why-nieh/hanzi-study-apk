@@ -1,0 +1,20 @@
+{
+  "name": "hanzi-study-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "哪吒学汉字 · 安卓离线套壳",
+  "scripts": {
+    "patch:web": "node scripts/patch-web.mjs",
+    "cap:add": "npx cap add android",
+    "cap:sync": "npx cap sync android",
+    "build:apk": "node scripts/patch-web.mjs && npx cap sync android && node scripts/patch-android.mjs android && cd android && ./gradlew assembleDebug"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  }
+}
