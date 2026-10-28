@@ -36,9 +36,10 @@ const bgPath = join(appDir, "build.gradle");
 let bg = readFileSync(bgPath, "utf8");
 if (!bg.includes("[patch-android]")) {
   // aaptOptions / androidResources 放进 android{} 块
+  // AGP 8.x: aaptOptions 已移除，用 androidResources
   const inject = `
-        // [patch-android] 媒体资源不压缩，保证音频可随机 seek
-        aaptOptions {
+        // [patch-android] 媒体资源不压缩，保证音频可随机 seek（AGP 8: androidResources）
+        androidResources {
             noCompress 'mp3', 'webp', 'ico'
         }
         lint {
